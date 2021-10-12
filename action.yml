@@ -1,0 +1,32 @@
+name: "acala-release-note"
+description: "Generate Release Note"
+author: ermalkaleci
+branding:
+  icon: "package"
+  color: "blue"
+
+inputs:
+  template:
+    description: Template file path
+    required: true
+  scope:
+    description: Release scope [client | runtime | full]
+    default: full
+    required: true
+  network:
+    description: Network [mandala | karura | acala]
+    required: true
+  srtool_details:
+    description: Srtool details path
+    required: true
+  subwasm_info:
+    description: Subwasm info path
+    required: true
+
+outputs:
+  release-note:
+    description: Generated Release Note
+
+runs:
+  using: 'node12'
+  main: 'dist/index.js'
