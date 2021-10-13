@@ -1917,24 +1917,25 @@ function getDepsVersions(tag) {
   );
 
   // find frame-system
-  const [, , substrateRev] = findPackage("frame-system");
-  core.debug(`${tag}: substrate=${substrateRev}`);
+  const [, substrate_version, substrate_commit] = findPackage("frame-system");
+  core.debug(`${tag}: substrate=${substrate_version} commit=${substrate_commit}`);
 
   // find polkadot-cli
-  const [, , polkadotRev] = findPackage("polkadot-cli");
-  core.debug(`${tag}: polkadot=${polkadotRev}`);
+  const [, polkadot_version, polkadot_commit] = findPackage("polkadot-cli");
+  core.debug(`${tag}: polkadot=${polkadot_version} commit=${polkadot_commit}`);
 
   // find cumulus-client-cli
-  const [, , cumulusRev] = findPackage("cumulus-client-cli");
-  core.debug(`${tag}: cumulus=${cumulusRev}`);
+  const [, cumulus_version, cumulus_commit] = findPackage("cumulus-client-cli");
+  core.debug(`${tag}: cumulus=${cumulus_version} commit=${cumulus_commit}`);
 
   shell.exec(`git switch - & git submodule update --init --recursive`, {
     silent: true,
   });
-  return { substrateRev, polkadotRev, cumulusRev };
+  return { substrate_version, substrate_commit, polkadot_version, polkadot_commit, cumulus_version, cumulus_commit };
 }
 
 function getSubmoduleVersion(submodule, tag) {
+  // something like: 160000 commit 37e42936c41dbdbaf0117c628c9eab0e06044844	orml
   const output = shell
     .exec(`git ls-tree ${tag} ${submodule}`, { silent: true })
     .stdout.trim();
@@ -1943,9 +1944,9 @@ function getSubmoduleVersion(submodule, tag) {
     matches && matches.length > 2,
     `Can't find ${submodule} version for tag: ${tag}`
   );
-  const version = matches[2];
-  core.debug(`${tag}: ${submodule}=${version}`);
-  return version;
+  const commit = matches[2].slice(0, 8);
+  core.debug(`${tag}: ${submodule}=${commit}`);
+  return commit;
 }
 
 function getRuntimeVersion(tag) {
@@ -1961,6 +1962,7 @@ function getRuntimeVersion(tag) {
   return runtime;
 }
 
+// get last 2 branches matching `release-{network}-*`
 function getBranches(network) {
   return shell
     .exec(`git branch -a | grep release-${network}-`, { silent: true })
@@ -1978,6 +1980,13 @@ async function run() {
 
     const network = core.getInput("network");
     assert(["mandala", "karura", "acala"].includes(network), "Unknown network");
+
+
+    const srtool_details_path = core.getInput("srtool_details");
+    const subwasm_info_path = core.getInput("subwasm_info");
+
+    const srtool_details = fs.readFileSync(srtool_details_path, "utf-8");
+    const subwasm_info = fs.readFileSync(subwasm_info_path, "utf-8");
 
     const templatePath = core.getInput("template");
     const templateStr = fs.readFileSync(templatePath, "utf-8");
@@ -2001,15 +2010,18 @@ async function run() {
     const previous_branch_name = previous_branch.split("/")[2];
 
     const {
-      substrateRev: substrate_version,
-      polkadotRev: polkadot_version,
-      cumulusRev: cumulus_version,
+      substrate_version,
+      substrate_commit,
+      polkadot_version,
+      polkadot_commit,
+      cumulus_version,
+      cumulus_commit,
     } = getDepsVersions(version);
 
     const {
-      substrateRev: previous_substrate_version,
-      polkadotRev: previous_polkadot_version,
-      cumulusRev: previous_cumulus_version,
+      substrate_commit: previous_substrate_commit,
+      polkadot_commit: previous_polkadot_commit,
+      cumulus_commit: previous_cumulus_commit,
     } = getDepsVersions(previous_version);
 
     const orml_version = getSubmoduleVersion("orml", version);
@@ -2017,12 +2029,6 @@ async function run() {
 
     const runtime = getRuntimeVersion(version);
     const previous_runtime = getRuntimeVersion(previous_version);
-
-    const srtool_details_path = core.getInput("srtool_details");
-    const subwasm_info_path = core.getInput("subwasm_info");
-
-    const srtool_details = fs.readFileSync(srtool_details_path, "utf-8");
-    const subwasm_info = fs.readFileSync(subwasm_info_path, "utf-8");
 
     const data = {
       scope: scopes[scope],
@@ -2034,11 +2040,14 @@ async function run() {
       branch_name,
       previous_branch_name,
       substrate_version,
-      previous_substrate_version,
+      substrate_commit,
+      previous_substrate_commit,
       polkadot_version,
-      previous_polkadot_version,
+      polkadot_commit,
+      previous_polkadot_commit,
       cumulus_version,
-      previous_cumulus_version,
+      cumulus_commit,
+      previous_cumulus_commit,
       orml_version,
       previous_orml_version,
       srtool_details,
