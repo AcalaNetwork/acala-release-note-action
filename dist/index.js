@@ -1998,6 +1998,8 @@ async function run() {
     const templatePath = core.getInput("template");
     const templateStr = fs.readFileSync(templatePath, "utf-8");
 
+    shell.exec('git fetch', { silent });
+
     const {
       substrate_version,
       substrate_commit,
