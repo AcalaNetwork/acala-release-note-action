@@ -22,6 +22,12 @@ inputs:
   subwasm_info:
     description: Subwasm info path
     required: true
+  tag:
+    description: New tag
+    required: true
+  previous_tag:
+    description: Previous tag
+    required: true
 
 outputs:
   release-note:

@@ -1985,29 +1985,16 @@ async function run() {
     const srtool_details_path = core.getInput("srtool_details");
     const subwasm_info_path = core.getInput("subwasm_info");
 
+    const version = core.getInput("tag");
+    const previous_version = core.getInput("previous_tag");
+    assert(version, "Tag missing");
+    assert(previous_version, "Previous tag missing");
+
     const srtool_details = fs.readFileSync(srtool_details_path, "utf-8");
     const subwasm_info = fs.readFileSync(subwasm_info_path, "utf-8");
 
     const templatePath = core.getInput("template");
     const templateStr = fs.readFileSync(templatePath, "utf-8");
-
-    const [previous_branch, new_branch] = getBranches(network);
-    core.debug(`new_branch = ${new_branch}`);
-    core.debug(`previous_branch = ${previous_branch}`);
-
-    const version = shell
-      .exec(`git describe --abbrev=0 --tags ${new_branch}`, { silent: true })
-      .stdout.trim();
-    assert(version, "Can't find tag");
-    const previous_version = shell
-      .exec(`git describe --abbrev=0 --tags ${previous_branch}`, {
-        silent: true,
-      })
-      .stdout.trim();
-    assert(previous_version, "Can't find previous tag");
-
-    const branch_name = new_branch.split("/")[2];
-    const previous_branch_name = previous_branch.split("/")[2];
 
     const {
       substrate_version,
@@ -2037,8 +2024,6 @@ async function run() {
       previous_version,
       runtime,
       previous_runtime,
-      branch_name,
-      previous_branch_name,
       substrate_version,
       substrate_commit,
       previous_substrate_commit,
