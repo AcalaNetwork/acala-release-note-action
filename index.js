@@ -53,9 +53,9 @@ function getDepsVersions(tag) {
 }
 
 function getSubmoduleVersion(submodule, tag) {
-  // something like: 160000 commit 37e42936c41dbdbaf0117c628c9eab0e06044844	orml
+  // something like: 160000 commit 37e42936c41dbdbaf0117c628c9eab0e06044844	- orml
   const output = shell
-    .exec(`git ls-tree ${tag} ${submodule}`, { silent: true })
+    .exec(`git ls-tree -l ${tag} ${submodule}`, { silent: true })
     .stdout.trim();
   const matches = output.match(/([\w+]+)/g);
   assert(
@@ -67,9 +67,9 @@ function getSubmoduleVersion(submodule, tag) {
   return commit;
 }
 
-function getRuntimeVersion(tag) {
+function getRuntimeVersion(tag, network) {
   const spec_version = shell
-    .exec(`git show ${tag}:runtime/karura/src/lib.rs | grep spec_version`, {
+    .exec(`git show ${tag}:runtime/${network}/src/lib.rs | grep spec_version`, {
       silent: true,
     })
     .stdout.trim()
@@ -132,8 +132,8 @@ async function run() {
     const orml_version = getSubmoduleVersion("orml", version);
     const previous_orml_version = getSubmoduleVersion("orml", previous_version);
 
-    const runtime = getRuntimeVersion(version);
-    const previous_runtime = getRuntimeVersion(previous_version);
+    const runtime = getRuntimeVersion(version, network);
+    const previous_runtime = getRuntimeVersion(previous_version, network);
 
     const data = {
       scope: scopes[scope],
