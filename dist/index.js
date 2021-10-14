@@ -1888,6 +1888,8 @@ const handlebars = __webpack_require__(635);
 const shell = __webpack_require__(739);
 const assert = __webpack_require__(357);
 
+const silent = false;
+
 const scopes = {
   client: "Client Only",
   runtime: "Runtime Only",
@@ -1902,7 +1904,7 @@ const networks = {
 
 function findPackage(package_name) {
   const package_info = shell.exec(
-    `cargo tree -p ${package_name} --depth=0 -e=normal -i`
+    `cargo tree -p ${package_name} --depth=0 -e=normal -i`, { silent }
   ).stdout;
   const [p, version, url] = package_info.split(" ");
   let [, hash] = url.trim().slice(1, -1).split("#");
@@ -1913,7 +1915,7 @@ function findPackage(package_name) {
 function getDepsVersions(tag) {
   shell.exec(
     `git switch --detach ${tag} & git submodule update --init --recursive`,
-    { silent: true }
+    { silent }
   );
 
   // find frame-system
@@ -1929,7 +1931,7 @@ function getDepsVersions(tag) {
   core.debug(`${tag}: cumulus=${cumulus_version} commit=${cumulus_commit}`);
 
   shell.exec(`git switch - & git submodule update --init --recursive`, {
-    silent: true,
+    silent,
   });
   return { substrate_version, substrate_commit, polkadot_version, polkadot_commit, cumulus_version, cumulus_commit };
 }
@@ -1937,7 +1939,7 @@ function getDepsVersions(tag) {
 function getSubmoduleVersion(submodule, tag) {
   // something like: 160000 commit 37e42936c41dbdbaf0117c628c9eab0e06044844	- orml
   const output = shell
-    .exec(`git ls-tree -l ${tag} ${submodule}`, { silent: true })
+    .exec(`git ls-tree -l ${tag} ${submodule}`, { silent })
     .stdout.trim();
   const matches = output.match(/([\w+]+)/g);
   assert(
@@ -1952,7 +1954,7 @@ function getSubmoduleVersion(submodule, tag) {
 function getRuntimeVersion(tag, network) {
   const spec_version = shell
     .exec(`git show ${tag}:runtime/${network}/src/lib.rs | grep spec_version`, {
-      silent: true,
+      silent,
     })
     .stdout.trim()
     .split(" ");
@@ -1965,7 +1967,7 @@ function getRuntimeVersion(tag, network) {
 // get last 2 branches matching `release-{network}-*`
 function getBranches(network) {
   return shell
-    .exec(`git branch -a | grep release-${network}-`, { silent: true })
+    .exec(`git branch -a | grep release-${network}-`, { silent })
     .stdout.split("\n")
     .filter((x) => x.trim().length !== 0)
     .slice(-2);
