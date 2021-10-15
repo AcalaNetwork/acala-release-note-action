@@ -2054,13 +2054,7 @@ async function run() {
     const template = handlebars.compile(templateStr);
     const output = template(data);
 
-    const outputPath = path.format({
-      ...path.parse(templatePath),
-      base: undefined,
-      ext: ".md",
-    });
-    fs.writeFileSync(outputPath, output);
-    core.setOutput("release-note", outputPath);
+    core.setOutput("release-note", output);
   } catch (error) {
     core.setFailed(error.message);
   }
