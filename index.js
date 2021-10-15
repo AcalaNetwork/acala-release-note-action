@@ -115,7 +115,7 @@ async function run() {
 
     let templatePath = core.getInput("template");
     if (!templatePath) {
-      templatePath = path.join(process.env.PWD, 'release-template.hbs');
+      templatePath = path.join(__dirname, '../release-template.hbs');
     }
     const templateStr = fs.readFileSync(templatePath, "utf-8");
 
