@@ -13,7 +13,7 @@ inputs:
     description: Release scope [client | runtime | full]
     default: full
     required: true
-  network:
+  chain:
     description: Network [mandala | karura | acala]
     required: true
   srtool_details:
