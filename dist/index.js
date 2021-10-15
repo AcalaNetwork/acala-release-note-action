@@ -1996,7 +1996,7 @@ async function run() {
     const subwasm_info = fs.readFileSync(subwasm_info_path, "utf-8");
 
     let templatePath = core.getInput("template");
-    if (templatePath.length === 0) {
+    if (!templatePath) {
       templatePath = path.join(process.env.PWD, 'release-template.hbs');
     }
     const templateStr = fs.readFileSync(templatePath, "utf-8");
