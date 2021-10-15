@@ -14,7 +14,7 @@ const scopes = {
   full: "Full Release",
 };
 
-const networks = {
+const chains = {
   mandala: "Mandala",
   karura: "Karura",
   acala: "Acala",
@@ -69,9 +69,9 @@ function getSubmoduleVersion(submodule, tag) {
   return commit;
 }
 
-function getRuntimeVersion(tag, network) {
+function getRuntimeVersion(tag, chain) {
   const spec_version = shell
-    .exec(`git show ${tag}:runtime/${network}/src/lib.rs | grep spec_version`, {
+    .exec(`git show ${tag}:runtime/${chain}/src/lib.rs | grep spec_version`, {
       silent,
     })
     .stdout.trim()
@@ -82,10 +82,10 @@ function getRuntimeVersion(tag, network) {
   return runtime;
 }
 
-// get last 2 branches matching `release-{network}-*`
-function getBranches(network) {
+// get last 2 branches matching `release-{chain}-*`
+function getBranches(chain) {
   return shell
-    .exec(`git branch -a | grep release-${network}-`, { silent })
+    .exec(`git branch -a | grep release-${chain}-`, { silent })
     .stdout.split("\n")
     .filter((x) => x.trim().length !== 0)
     .slice(-2);
@@ -98,8 +98,8 @@ async function run() {
     const scope = core.getInput("scope");
     assert(["client", "runtime", "full"].includes(scope), "Unknown scope");
 
-    const network = core.getInput("network");
-    assert(["mandala", "karura", "acala"].includes(network), "Unknown network");
+    const chain = core.getInput("chain");
+    assert(["mandala", "karura", "acala"].includes(chain), "Unknown chain");
 
 
     const srtool_details_path = core.getInput("srtool_details");
@@ -113,7 +113,10 @@ async function run() {
     const srtool_details = fs.readFileSync(srtool_details_path, "utf-8");
     const subwasm_info = fs.readFileSync(subwasm_info_path, "utf-8");
 
-    const templatePath = core.getInput("template");
+    let templatePath = core.getInput("template");
+    if (templatePath.length === 0) {
+      templatePath = path.join(process.env.PWD, 'release-template.hbs');
+    }
     const templateStr = fs.readFileSync(templatePath, "utf-8");
 
     shell.exec('git fetch --tags', { silent });
@@ -136,12 +139,12 @@ async function run() {
     const orml_version = getSubmoduleVersion("orml", version);
     const previous_orml_version = getSubmoduleVersion("orml", previous_version);
 
-    const runtime = getRuntimeVersion(version, network);
-    const previous_runtime = getRuntimeVersion(previous_version, network);
+    const runtime = getRuntimeVersion(version, chain);
+    const previous_runtime = getRuntimeVersion(previous_version, chain);
 
     const data = {
       scope: scopes[scope],
-      network: networks[network],
+      network: chains[chain],
       version,
       previous_version,
       runtime,
@@ -161,9 +164,9 @@ async function run() {
       subwasm_info,
       client_checklist: scope === "client" || scope === "full",
       runtime_checklist: scope === "runtime" || scope === "full",
-      is_mandala: network === "mandala",
-      is_karura: network === "karura",
-      is_acala: network === "acala",
+      is_mandala: chain === "mandala",
+      is_karura: chain === "karura",
+      is_acala: chain === "acala",
     };
 
     const template = handlebars.compile(templateStr);

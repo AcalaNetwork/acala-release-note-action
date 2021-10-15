@@ -8,7 +8,7 @@ branding:
 inputs:
   template:
     description: Template file path
-    required: true
+    required: false
   scope:
     description: Release scope [client | runtime | full]
     default: full
