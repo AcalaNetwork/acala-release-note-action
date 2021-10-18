@@ -101,10 +101,17 @@ async function run() {
     const chain = core.getInput("chain");
     assert(["mandala", "karura", "acala"].includes(chain), "Unknown chain");
 
+
+    const srtool_details_path = core.getInput("srtool_details");
+    const subwasm_info_path = core.getInput("subwasm_info");
+
     const version = core.getInput("tag");
     const previous_version = core.getInput("previous_tag");
     assert(version, "Tag missing");
     assert(previous_version, "Previous tag missing");
+
+    const srtool_details = fs.readFileSync(srtool_details_path, "utf-8");
+    const subwasm_info = fs.readFileSync(subwasm_info_path, "utf-8");
 
     let templatePath = core.getInput("template");
     if (!templatePath) {
@@ -153,12 +160,13 @@ async function run() {
       previous_cumulus_commit,
       orml_version,
       previous_orml_version,
+      srtool_details,
+      subwasm_info,
       client_checklist: scope === "client" || scope === "full",
       runtime_checklist: scope === "runtime" || scope === "full",
       is_mandala: chain === "mandala",
       is_karura: chain === "karura",
       is_acala: chain === "acala",
-      env: process.env,
     };
 
     const template = handlebars.compile(templateStr);
