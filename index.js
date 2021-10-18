@@ -104,6 +104,7 @@ async function run() {
 
     const srtool_details_path = core.getInput("srtool_details");
     const subwasm_info_path = core.getInput("subwasm_info");
+    const wasm_diff_path = core.getInput("wasm_diff");
 
     const version = core.getInput("tag");
     const previous_version = core.getInput("previous_tag");
@@ -112,6 +113,7 @@ async function run() {
 
     const srtool_details = fs.readFileSync(srtool_details_path, "utf-8");
     const subwasm_info = fs.readFileSync(subwasm_info_path, "utf-8");
+    const wasm_diff = fs.readFileSync(wasm_diff_path, "utf-8");
 
     let templatePath = core.getInput("template");
     if (!templatePath) {
@@ -162,11 +164,13 @@ async function run() {
       previous_orml_version,
       srtool_details,
       subwasm_info,
+      wasm_diff,
       client_checklist: scope === "client" || scope === "full",
       runtime_checklist: scope === "runtime" || scope === "full",
       is_mandala: chain === "mandala",
       is_karura: chain === "karura",
       is_acala: chain === "acala",
+      env: process.env,
     };
 
     const template = handlebars.compile(templateStr);
