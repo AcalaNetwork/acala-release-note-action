@@ -1899,11 +1899,10 @@ function findPackage(package_name) {
   ).stdout;
   const [p, version, url] = package_info.split(" ");
   let [, hash] = url.trim().slice(1, -1).split("#");
-  assert(hash);
   return [p, version, hash];
 }
 
-function getDepsVersions(branch) {
+function getDepsVersions(branch, chain) {
   shell.exec(
     `git switch --detach ${branch} & git submodule update --init --recursive`,
     { silent }
@@ -1921,10 +1920,23 @@ function getDepsVersions(branch) {
   const [, cumulus_version, cumulus_commit] = findPackage("cumulus-client-cli");
   core.debug(`${branch}: cumulus=${cumulus_version} commit=${cumulus_commit}`);
 
+  // find runtime
+  const [, version] = findPackage(`${chain}-runtime`);
+  core.debug(`${branch}: version=${version}`);
+
   shell.exec(`git switch - & git submodule update --init --recursive`, {
     silent,
   });
-  return { substrate_version, substrate_commit, polkadot_version, polkadot_commit, cumulus_version, cumulus_commit };
+
+  return {
+    substrate_version,
+    substrate_commit,
+    polkadot_version,
+    polkadot_commit,
+    cumulus_version,
+    cumulus_commit,
+    version
+  };
 }
 
 function getSubmoduleVersion(submodule, branch) {
@@ -2007,13 +2019,15 @@ async function run() {
       polkadot_commit,
       cumulus_version,
       cumulus_commit,
-    } = getDepsVersions(new_branch);
+      version,
+    } = getDepsVersions(new_branch, chain);
 
     const {
       substrate_commit: previous_substrate_commit,
       polkadot_commit: previous_polkadot_commit,
       cumulus_commit: previous_cumulus_commit,
-    } = getDepsVersions(previous_branch);
+      version: previous_version,
+    } = getDepsVersions(previous_branch, chain);
 
     const orml_version = getSubmoduleVersion("orml", new_branch);
     const previous_orml_version = getSubmoduleVersion("orml", previous_branch);
@@ -2024,8 +2038,10 @@ async function run() {
     const data = {
       scope: scopes[scope],
       network: chains[chain],
-      version: getTag(new_branch),
-      previous_version: getTag(previous_branch),
+      version,
+      previous_version,
+      tag: getTag(new_branch),
+      previous_tag: getTag(previous_branch),
       new_branch: getName(new_branch),
       previous_branch: getName(previous_branch),
       runtime,
