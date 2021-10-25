@@ -120,12 +120,11 @@ async function run() {
     }
     const templateStr = fs.readFileSync(templatePath, "utf-8");
 
+    shell.exec('git fetch origin', { silent });
+
     const [previous_branch, new_branch] = getBranches(chain);
     core.debug("Previus branch: " + previous_branch);
     core.debug("New branch: " + new_branch);
-
-
-    shell.exec('git fetch origin', { silent });
 
     const {
       substrate_version,
