@@ -13,8 +13,8 @@ assignees:
 - Network: {{network}}
 - Client Version: {{version}}
 - Runtime Version: {{runtime}}
-- Release Tag: [{{version}}](https://github.com/AcalaNetwork/Acala/tree/{{version}})
-  -  Diff: https://github.com/AcalaNetwork/Acala/compare/{{previous_version}}...{{version}}
+- Release Branch: [{{new_branch}}](https://github.com/AcalaNetwork/Acala/tree/{{new_branch}})
+  -  Diff: https://github.com/AcalaNetwork/Acala/compare/{{previous_branch}}...{{new_branch}}
 - Substrate version: [{{substrate_version}}](https://github.com/paritytech/substrate/tree/{{substrate_version}})
   - Diff: https://github.com/paritytech/substrate/compare/{{previous_substrate_commit}}...{{substrate_commit}}
 - ORML version: [{{orml_version}}](https://github.com/open-web3-stack/open-runtime-module-library/tree/{{orml_version}})
@@ -48,9 +48,15 @@ assignees:
   {{#if is_karura}}
   - [acala/karura-node:{{version}}](https://hub.docker.com/layers/acala/karura-node/{{version}})
   {{/if}}
+  {{#if is_mandala}}
+  - [acala/mandala-node:{{version}}](https://hub.docker.com/layers/acala/mandala-node/{{version}})
+  {{/if}}
 - [ ] Check new client is able to sync from scratch
   {{#if is_karura}}
   -  `docker run --rm acala/karura-node:latest --chain=karura -- --chain=dev`
+  {{/if}}
+  {{#if is_mandala}}
+  -  `docker run --rm acala/mandala-node:latest --chain=mandala -- --chain=dev`
   {{/if}}
 {{/if}}
 
@@ -114,4 +120,6 @@ assignees:
 - [ ] Faucet (for Mandala)
 
 ### Diff
+```
 {{{wasm_diff}}}
+```

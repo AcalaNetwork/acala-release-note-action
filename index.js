@@ -1,7 +1,6 @@
 const fs = require("fs");
 const path = require("path");
 const core = require("@actions/core");
-const github = require("@actions/github");
 const handlebars = require("handlebars");
 const shell = require("shelljs");
 const assert = require("assert");
@@ -30,23 +29,23 @@ function findPackage(package_name) {
   return [p, version, hash];
 }
 
-function getDepsVersions(tag) {
+function getDepsVersions(branch) {
   shell.exec(
-    `git switch --detach ${tag} & git submodule update --init --recursive`,
+    `git switch --detach ${branch} & git submodule update --init --recursive`,
     { silent }
   );
 
   // find frame-system
   const [, substrate_version, substrate_commit] = findPackage("frame-system");
-  core.debug(`${tag}: substrate=${substrate_version} commit=${substrate_commit}`);
+  core.debug(`${branch}: substrate=${substrate_version} commit=${substrate_commit}`);
 
   // find polkadot-cli
   const [, polkadot_version, polkadot_commit] = findPackage("polkadot-cli");
-  core.debug(`${tag}: polkadot=${polkadot_version} commit=${polkadot_commit}`);
+  core.debug(`${branch}: polkadot=${polkadot_version} commit=${polkadot_commit}`);
 
   // find cumulus-client-cli
   const [, cumulus_version, cumulus_commit] = findPackage("cumulus-client-cli");
-  core.debug(`${tag}: cumulus=${cumulus_version} commit=${cumulus_commit}`);
+  core.debug(`${branch}: cumulus=${cumulus_version} commit=${cumulus_commit}`);
 
   shell.exec(`git switch - & git submodule update --init --recursive`, {
     silent,
@@ -54,31 +53,31 @@ function getDepsVersions(tag) {
   return { substrate_version, substrate_commit, polkadot_version, polkadot_commit, cumulus_version, cumulus_commit };
 }
 
-function getSubmoduleVersion(submodule, tag) {
+function getSubmoduleVersion(submodule, branch) {
   // something like: 160000 commit 37e42936c41dbdbaf0117c628c9eab0e06044844	- orml
   const output = shell
-    .exec(`git ls-tree -l ${tag} ${submodule}`, { silent })
+    .exec(`git ls-tree -l ${branch} ${submodule}`, { silent })
     .stdout.trim();
   const matches = output.match(/([\w+]+)/g);
   assert(
     matches && matches.length > 2,
-    `Can't find ${submodule} version for tag: ${tag}`
+    `Can't find ${submodule} version for branch: ${branch}`
   );
   const commit = matches[2].slice(0, 8);
-  core.debug(`${tag}: ${submodule}=${commit}`);
+  core.debug(`${branch}: ${submodule}=${commit}`);
   return commit;
 }
 
-function getRuntimeVersion(tag, chain) {
+function getRuntimeVersion(branch, chain) {
   const spec_version = shell
-    .exec(`git show ${tag}:runtime/${chain}/src/lib.rs | grep spec_version`, {
+    .exec(`git show ${branch}:runtime/${chain}/src/lib.rs | grep spec_version`, {
       silent,
     })
     .stdout.trim()
     .split(" ");
   assert(spec_version.length === 2, "Cant't find runtime version");
   const runtime = spec_version[1];
-  core.debug(`${tag}: runtime=${runtime}`);
+  core.debug(`${branch}: runtime=${runtime}`);
   return runtime;
 }
 
@@ -91,26 +90,26 @@ function getBranches(chain) {
     .slice(-2);
 }
 
+function getName(branch) {
+  const items = branch.split('/');
+  return items[items.length - 1];
+}
+
+function getTag(branch) {
+  return shell.exec(`git describe --tags --abbrev=0 ${branch}`, { silent }).stdout.trim();
+}
+
 async function run() {
   try {
-    core.debug(github);
-
     const scope = core.getInput("scope");
     assert(["client", "runtime", "full"].includes(scope), "Unknown scope");
 
     const chain = core.getInput("chain");
     assert(["mandala", "karura", "acala"].includes(chain), "Unknown chain");
 
-
     const srtool_details_path = core.getInput("srtool_details");
     const subwasm_info_path = core.getInput("subwasm_info");
     const wasm_diff_path = core.getInput("wasm_diff");
-
-    const version = core.getInput("tag");
-    const previous_version = core.getInput("previous_tag");
-    assert(version, "Tag missing");
-    assert(previous_version, "Previous tag missing");
-
     const srtool_details = fs.readFileSync(srtool_details_path, "utf-8");
     const subwasm_info = fs.readFileSync(subwasm_info_path, "utf-8");
     const wasm_diff = fs.readFileSync(wasm_diff_path, "utf-8");
@@ -121,7 +120,12 @@ async function run() {
     }
     const templateStr = fs.readFileSync(templatePath, "utf-8");
 
-    shell.exec('git fetch --tags', { silent });
+    const [previous_branch, new_branch] = getBranches(chain);
+    core.debug("Previus branch: " + previous_branch);
+    core.debug("New branch: " + new_branch);
+
+
+    shell.exec('git fetch origin', { silent });
 
     const {
       substrate_version,
@@ -130,25 +134,27 @@ async function run() {
       polkadot_commit,
       cumulus_version,
       cumulus_commit,
-    } = getDepsVersions(version);
+    } = getDepsVersions(new_branch);
 
     const {
       substrate_commit: previous_substrate_commit,
       polkadot_commit: previous_polkadot_commit,
       cumulus_commit: previous_cumulus_commit,
-    } = getDepsVersions(previous_version);
+    } = getDepsVersions(previous_branch);
 
-    const orml_version = getSubmoduleVersion("orml", version);
-    const previous_orml_version = getSubmoduleVersion("orml", previous_version);
+    const orml_version = getSubmoduleVersion("orml", new_branch);
+    const previous_orml_version = getSubmoduleVersion("orml", previous_branch);
 
-    const runtime = getRuntimeVersion(version, chain);
-    const previous_runtime = getRuntimeVersion(previous_version, chain);
+    const runtime = getRuntimeVersion(new_branch, chain);
+    const previous_runtime = getRuntimeVersion(previous_branch, chain);
 
     const data = {
       scope: scopes[scope],
       network: chains[chain],
-      version,
-      previous_version,
+      version: getTag(new_branch),
+      previous_version: getTag(previous_branch),
+      new_branch: getName(new_branch),
+      previous_branch: getName(previous_branch),
       runtime,
       previous_runtime,
       substrate_version,
