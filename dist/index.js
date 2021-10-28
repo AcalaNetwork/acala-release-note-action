@@ -2071,7 +2071,7 @@ async function run() {
     const template = handlebars.compile(templateStr);
     const output = template(data);
 
-    const ouputPath = path.join(__dirname, "../release-note.md");
+    const ouputPath = path.join(os.tmpdir(), "/release-note.md");
     fs.writeFileSync(ouputPath, output);
 
     core.setOutput("release-note", ouputPath);
