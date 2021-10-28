@@ -2071,7 +2071,10 @@ async function run() {
     const template = handlebars.compile(templateStr);
     const output = template(data);
 
-    core.setOutput("release-note", output);
+    const ouputPath = path.join(__dirname, "../release-note.md");
+    fs.writeFileSync(ouputPath, output);
+
+    core.setOutput("release-note", ouputPath);
   } catch (error) {
     core.setFailed(error.message);
   }
