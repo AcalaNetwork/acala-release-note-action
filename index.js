@@ -197,9 +197,7 @@ async function run() {
     const template = handlebars.compile(templateStr);
     const output = template(data);
 
-    let tempDir = path.normalize(shell.exec('mktemp -d', { silent }).stdout.trim());
-    fs.mkdtempSync(tempDir);
-    const ouputPath = path.join(tempDir, "/release-note.md");
+    const ouputPath = `release-note-${chain}-${version}-${runtime}.md`;
     fs.writeFileSync(ouputPath, output);
 
     core.setOutput("release-note", ouputPath);
