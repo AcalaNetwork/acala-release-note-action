@@ -85,7 +85,9 @@ function getRuntimeVersion(branch, chain) {
     .exec(`git show ${branch}:runtime/${chain}/src/lib.rs | grep spec_version`, {
       silent,
     })
-    .stdout.trim()
+    .stdout
+    .trim()
+    .replace(",", "")
     .split(" ");
   assert(spec_version.length === 2, "Cant't find runtime version");
   const runtime = spec_version[1];
@@ -121,10 +123,8 @@ async function run() {
 
     const srtool_details_path = core.getInput("srtool_details");
     const subwasm_info_path = core.getInput("subwasm_info");
-    const wasm_diff_path = core.getInput("wasm_diff");
     const srtool_details = fs.readFileSync(srtool_details_path, "utf-8");
     const subwasm_info = fs.readFileSync(subwasm_info_path, "utf-8");
-    const wasm_diff = fs.readFileSync(wasm_diff_path, "utf-8");
 
     let templatePath = core.getInput("template");
     if (!templatePath) {
@@ -185,7 +185,6 @@ async function run() {
       previous_orml_version,
       srtool_details,
       subwasm_info,
-      wasm_diff,
       client_checklist: scope === "client" || scope === "full",
       runtime_checklist: scope === "runtime" || scope === "full",
       is_mandala: chain === "mandala",

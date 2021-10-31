@@ -22,9 +22,6 @@ inputs:
   subwasm_info:
     description: Subwasm info path
     required: true
-  wasm_diff:
-    description: Wasm diff path
-    required: true
 
 outputs:
   release-note:
