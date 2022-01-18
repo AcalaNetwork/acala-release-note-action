@@ -160,6 +160,7 @@ async function run() {
 
     const runtime = getRuntimeVersion(new_branch, chain);
     const previous_runtime = getRuntimeVersion(previous_branch, chain);
+    const runtime_display = runtime.charAt(0).toUpperCase() + runtime.slice(1);
 
     const data = {
       scope: scopes[scope],
@@ -172,6 +173,7 @@ async function run() {
       previous_branch: getName(previous_branch),
       runtime,
       previous_runtime,
+      runtime_display,
       substrate_version,
       substrate_commit,
       previous_substrate_commit,
