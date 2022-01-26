@@ -45,19 +45,9 @@ assignees:
   - Last version: {{previous_version}}
 - [ ] Check the new client have run on the network without issue for at lease 12 hours.
 - [ ] Check new docker image has been published.
-  {{#if is_karura}}
-  - [acala/karura-node:{{version}}](https://hub.docker.com/layers/acala/karura-node/{{version}})
-  {{/if}}
-  {{#if is_mandala}}
-  - [acala/mandala-node:{{version}}](https://hub.docker.com/layers/acala/mandala-node/{{version}})
-  {{/if}}
+  - [acala/{{chain}}-node:{{version}}](https://hub.docker.com/layers/acala/{{chain}}-node/{{version}})
 - [ ] Check new client is able to sync from scratch
-  {{#if is_karura}}
-  -  `docker run --rm acala/karura-node:latest --chain=karura -- --chain=dev`
-  {{/if}}
-  {{#if is_mandala}}
-  -  `docker run --rm acala/mandala-node:latest --chain=mandala -- --chain=dev`
-  {{/if}}
+  -  `docker run --rm acala/{{chain}}-node:latest --chain={{chain}} -- --chain=dev`
 {{/if}}
 
 {{#if runtime_checklist }}
@@ -83,9 +73,9 @@ assignees:
   - [ ] Polkadot
   - [ ] Acala
 - [ ] Verify new migrations complete successfully and the runtime state is correctly updated for any public networks.
-  - [ ] Verify the execution time to perform runtime upgrade with Karura/Acala onchain data.
+  - [ ] Verify the execution time to perform runtime upgrade with {{network}} onchain data.
 - [ ] Ensure WASM is reproducible
-  - `make srtool-build-wasm-karura`
+  - `make srtool-build-wasm-{{chain}}`
 {{/if}}
 
 ## All Releases
@@ -96,25 +86,3 @@ assignees:
 
 - [ ] Notify Discord announcement channel.
 - [ ] Ensure our own nodes are updated
-
-## Compatibility Checklist
-
-### SDK & Tools
-
-- [ ] acala.js
-- [ ] txwrapper
-- [ ] sidecar
-- [ ] acala-subql
-- [ ] oracle dispatcher
-
-### dApps & Wallets
-
-- [ ] polkadot apps
-- [ ] Acala dApp
-- [ ] Polkawallet
-
-### Other
-
-- [ ] Exchanges
-- [ ] Gauntlet
-- [ ] Faucet (for Mandala)

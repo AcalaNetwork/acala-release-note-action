@@ -165,6 +165,7 @@ async function run() {
     const data = {
       scope: scopes[scope],
       network: chains[chain],
+      chain,
       version,
       previous_version,
       tag: getTag(new_branch),
