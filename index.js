@@ -126,6 +126,10 @@ async function run() {
     const srtool_details = fs.readFileSync(srtool_details_path, "utf-8");
     const subwasm_info = fs.readFileSync(subwasm_info_path, "utf-8");
 
+    const srtool_details_obj = JSON.parse(srtool_details)
+
+    const wasm_ipfs = `https://gateway.pinata.cloud/ipfs/${srtool_details_obj.runtime.compressed.ipfs}`
+
     let templatePath = core.getInput("template");
     if (!templatePath) {
       templatePath = path.join(__dirname, '../release-template.hbs');
@@ -194,6 +198,7 @@ async function run() {
       is_karura: chain === "karura",
       is_acala: chain === "acala",
       env: process.env,
+      wasm_ipfs,
     };
 
     const template = handlebars.compile(templateStr);
