@@ -30,7 +30,7 @@ function findPackage(package_name) {
 
 function getDepsVersions(branch, chain) {
   shell.exec(
-    `git switch --detach ${branch} & git submodule update --init --recursive`,
+    `git switch --detach ${branch} & git submodule update --init --recursive --force`,
     { silent }
   );
 
