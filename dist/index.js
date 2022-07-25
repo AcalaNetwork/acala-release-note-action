@@ -1903,10 +1903,8 @@ function findPackage(package_name) {
 }
 
 function getDepsVersions(branch, chain) {
-  shell.exec(
-    `git switch --detach ${branch} & git submodule update --init --recursive`,
-    { silent }
-  );
+  shell.exec(`git switch --detach ${branch}`, { silent });
+  shell.exec('git submodule update --init --recursive', { silent });
 
   // find frame-system
   const [, substrate_version, substrate_commit] = findPackage("frame-system");
@@ -1924,9 +1922,8 @@ function getDepsVersions(branch, chain) {
   const [, version] = findPackage(`${chain}-runtime`);
   core.debug(`${branch}: version=${version}`);
 
-  shell.exec(`git switch - & git submodule update --init --recursive`, {
-    silent,
-  });
+  shell.exec(`git switch -`, { silent });
+  shell.exec('git submodule update --init --recursive', { silent });
 
   return {
     substrate_version,
