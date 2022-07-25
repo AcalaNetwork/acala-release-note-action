@@ -21,7 +21,7 @@ const chains = {
 
 function findPackage(package_name) {
   const package_info = shell.exec(
-    `cargo tree -p ${package_name} --depth=0 -e=normal -i`, { silent }
+    `cargo tree -p ${package_name} --depth=0 -e=normal -i -q`, { silent }
   ).stdout;
   const [p, version, url] = package_info.split(" ");
   let [, hash] = url.trim().slice(1, -1).split("#");
@@ -30,7 +30,7 @@ function findPackage(package_name) {
 
 function getDepsVersions(branch, chain) {
   shell.exec(
-    `git switch --detach ${branch} & git submodule update --init --recursive --force`,
+    `git switch --detach ${branch} & git submodule update --init --recursive`,
     { silent }
   );
 
