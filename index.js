@@ -92,10 +92,10 @@ function getRuntimeVersion(branch, chain) {
   return runtime;
 }
 
-// get last 2 branches matching `release-{chain}-*`
+// get last 2 branches matching `remotes/origin/release-{chain}-*`
 function getBranches(chain) {
   return shell
-    .exec(`git branch -a | grep release-${chain}-`, { silent })
+    .exec(`git branch -a --sort=committerdate | grep remotes/origin/release-${chain}-`, { silent })
     .stdout.split("\n")
     .filter((x) => x.trim().length !== 0)
     .slice(-2);
