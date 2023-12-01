@@ -33,8 +33,8 @@ function getDepsVersions(branch, chain) {
   shell.exec('git submodule update --init --recursive', { silent });
 
   // find frame-system
-  const [, substrate_version, substrate_commit] = findPackage("frame-system");
-  core.debug(`${branch}: substrate=${substrate_version} commit=${substrate_commit}`);
+  const [, frame_system_version, frame_system_commit] = findPackage("frame-system");
+  core.debug(`${branch}: frame_system=${frame_system_version} commit=${frame_system_commit}`);
 
   // find polkadot-cli
   const [, polkadot_version, polkadot_commit] = findPackage("polkadot-cli");
@@ -52,8 +52,8 @@ function getDepsVersions(branch, chain) {
   shell.exec('git submodule update --init --recursive', { silent });
 
   return {
-    substrate_version,
-    substrate_commit,
+    frame_system_version,
+    frame_system_commit,
     polkadot_version,
     polkadot_commit,
     cumulus_version,
@@ -140,15 +140,15 @@ async function run() {
     core.debug("New branch: " + new_branch);
 
     const {
-      substrate_version,
+      frame_system_version,
       polkadot_version,
       cumulus_version,
       version,
     } = getDepsVersions(new_branch, chain);
 
     const {
-      substrate_version: previous_substrate_version,
-      substrate_commit: previous_substrate_commit,
+      frame_system_version: previous_frame_system_version,
+      frame_system_commit: previous_frame_system_commit,
       polkadot_version: previous_polkadot_version,
       polkadot_commit: previous_polkadot_commit,
       cumulus_version: previous_cumulus_version,
@@ -176,10 +176,10 @@ async function run() {
       runtime,
       previous_runtime,
       runtime_display,
-      substrate_version,
-      substrate_commit,
-      previous_substrate_version,
-      previous_substrate_commit,
+      frame_system_version,
+      frame_system_commit,
+      previous_frame_system_version,
+      previous_frame_system_commit,
       polkadot_version,
       polkadot_commit,
       previous_polkadot_version,
