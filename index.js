@@ -141,8 +141,11 @@ async function run() {
 
     const {
       frame_system_version,
+      frame_system_commit,
       polkadot_version,
+      polkadot_commit,
       cumulus_version,
+      cumulus_commit,
       version,
     } = getDepsVersions(new_branch, chain);
 
