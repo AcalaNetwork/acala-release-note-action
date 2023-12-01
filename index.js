@@ -24,7 +24,7 @@ function findPackage(package_name) {
     `cargo tree -p ${package_name} --depth=0 -e=normal -i -q`, { silent }
   ).stdout;
   const [p, version, url] = package_info.split(" ");
-  let [, hash] = url && url.trim().slice(1, -1).split("#");
+  let [, hash] = typeof url === 'string' ? url.trim().slice(1, -1).split("#") : [];
   return [p, version, hash];
 }
 
@@ -141,17 +141,17 @@ async function run() {
 
     const {
       substrate_version,
-      substrate_commit,
       polkadot_version,
-      polkadot_commit,
       cumulus_version,
-      cumulus_commit,
       version,
     } = getDepsVersions(new_branch, chain);
 
     const {
+      substrate_version: previous_substrate_version,
       substrate_commit: previous_substrate_commit,
+      polkadot_version: previous_polkadot_version,
       polkadot_commit: previous_polkadot_commit,
+      cumulus_version: previous_cumulus_version,
       cumulus_commit: previous_cumulus_commit,
       version: previous_version,
     } = getDepsVersions(previous_branch, chain);
@@ -178,12 +178,15 @@ async function run() {
       runtime_display,
       substrate_version,
       substrate_commit,
+      previous_substrate_version,
       previous_substrate_commit,
       polkadot_version,
       polkadot_commit,
+      previous_polkadot_version,
       previous_polkadot_commit,
       cumulus_version,
       cumulus_commit,
+      previous_cumulus_version,
       previous_cumulus_commit,
       orml_version,
       previous_orml_version,
