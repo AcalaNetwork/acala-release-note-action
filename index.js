@@ -24,7 +24,7 @@ function findPackage(package_name) {
     `cargo tree -p ${package_name} --depth=0 -e=normal -i -q`, { silent }
   ).stdout;
   const [p, version, url] = package_info.split(" ");
-  let [, hash] = url.trim().slice(1, -1).split("#");
+  let [, hash] = url && url.trim().slice(1, -1).split("#");
   return [p, version, hash];
 }
 
