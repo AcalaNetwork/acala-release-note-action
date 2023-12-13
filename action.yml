@@ -28,5 +28,5 @@ outputs:
     description: Generated Release Note
 
 runs:
-  using: 'node12'
+  using: 'node16'
   main: 'dist/index.js'
