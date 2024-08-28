@@ -8,9 +8,9 @@ labels: a-release
 
 ## New Release Details:
 
-- Scope: {{scope}}
+- Scope: Runtime Release
 - Network: {{network}}
-- Client Version: {{version}}
+- Version: {{version}}
 - Runtime Version: {{runtime}}
 - Release Branch: [{{new_branch}}](https://github.com/AcalaNetwork/Acala/tree/{{new_branch}})
   -  Diff: https://github.com/AcalaNetwork/Acala/compare/{{previous_branch}}...{{new_branch}}
@@ -32,21 +32,7 @@ labels: a-release
 
 - Previous Release: https://github.com/AcalaNetwork/Acala/releases/tag/{{previous_tag}}
 
-{{#if client_checklist }}
-## Client Release
-
-- [ ] Verify client `Cargo.toml` version has been incremented since the last release.
-  - Current version: {{version}}
-  - Last version: {{previous_version}}
-- [ ] Check the new client have run on the network without issue for at lease 12 hours.
-- [ ] Check new docker image has been published.
-  - [acala/{{chain}}-node:{{version}}](https://hub.docker.com/layers/acala/{{chain}}-node/{{version}})
-- [ ] Check new client is able to sync from scratch
-  -  `docker run --rm acala/{{chain}}-node:latest --chain={{chain}} -- --chain=dev`
-{{/if}}
-
-{{#if runtime_checklist }}
-## Runtime Release
+## Checklist
 
 - [ ] Verify `spec_version` has been incremented since the last release.
   - Current version: {{runtime}}
@@ -71,13 +57,4 @@ labels: a-release
   - [ ] Verify the execution time to perform runtime upgrade with {{network}} onchain data.
 - [ ] Ensure WASM is reproducible
   - `make srtool-build-wasm-{{chain}}`
-{{/if}}
-
-## All Releases
-
 - [ ] Check new Github release is created with release logs.
-
-## Post Release
-
-- [ ] Notify Discord announcement channel.
-- [ ] Ensure our own nodes are updated

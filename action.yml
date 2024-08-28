@@ -9,12 +9,8 @@ inputs:
   template:
     description: Template file path
     required: false
-  scope:
-    description: Release scope [client | runtime | full]
-    default: full
-    required: true
   chain:
-    description: Network [mandala | karura | acala]
+    description: Network [karura | acala]
     required: true
   srtool_details:
     description: Srtool details path
