@@ -115,7 +115,7 @@ async function run() {
     const template = handlebars.compile(templateStr);
     const output = template(data);
 
-    const ouputPath = `release-note-${chain}-${version}-${runtime}.md`;
+    const ouputPath = `release-note-${chain}-${srtool_details_obj.version}-${runtime}.md`;
     fs.writeFileSync(ouputPath, output);
 
     core.setOutput("release-note", ouputPath);
